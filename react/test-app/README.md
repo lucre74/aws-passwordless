@@ -9,7 +9,8 @@ It uses the resources created in the sibling SAM application.
 
 ## Configuration
 The AWS region, the Cognito user pool id and the Cognito Web 
-client id must be available in the environment. Either as variables
+client id (created during the deployment of the SAM application) 
+must be available in the environment. Either as variables
 from your environment or in a file react/test-app/.env: 
 ```
 REACT_APP_AWS_REGION=eu-west-1
