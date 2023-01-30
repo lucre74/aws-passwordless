@@ -1,0 +1,1 @@
+#boto3==1.26.56  ### Not needed, already present in the AWS lambda runtime.

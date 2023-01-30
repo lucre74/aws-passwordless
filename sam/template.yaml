@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  Test202212PreSignupFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: PreSignup.do
+      Runtime: python3.7
+      Architectures:
+        - x86_64
+  Test202212DefineAuthChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: DefineAuthChallenge.do
+      Runtime: python3.7
+      Architectures:
+        - x86_64
+  Test202212CreateAuthChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: CreateAuthChallenge.do
+      Runtime: python3.7
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+              Resource: "*"
+  Test202212VerifyAuthChallengeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src
+      Handler: VerifyAuthChallenge.do
+      Runtime: python3.7
+      Architectures:
+        - x86_64
+      Policies:
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - ses:SendEmail
+              Resource: "*"
+  Test202212PreSignupFunctionInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt Test202212PreSignupFunction.Arn
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt Test202212CognitoUserPool.Arn
+  Test202212DefineAuthChallengeFunctionInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt Test202212DefineAuthChallengeFunction.Arn
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt Test202212CognitoUserPool.Arn
+  Test202212CreateAuthChallengeFunctionInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt Test202212CreateAuthChallengeFunction.Arn
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt Test202212CognitoUserPool.Arn
+  Test202212VerifyAuthChallengeFunctionInvocationPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+        Action: lambda:InvokeFunction
+        FunctionName: !GetAtt Test202212VerifyAuthChallengeFunction.Arn
+        Principal: cognito-idp.amazonaws.com
+        SourceArn: !GetAtt Test202212CognitoUserPool.Arn
+  Test202212CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UsernameAttributes:
+        - email
+      UsernameConfiguration:
+        CaseSensitive: false
+      LambdaConfig:
+        PreSignUp: !GetAtt Test202212PreSignupFunction.Arn
+        DefineAuthChallenge: !GetAtt Test202212DefineAuthChallengeFunction.Arn
+        CreateAuthChallenge: !GetAtt Test202212CreateAuthChallengeFunction.Arn
+        VerifyAuthChallengeResponse: !GetAtt Test202212VerifyAuthChallengeFunction.Arn
+  Test202212CognitoUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      "Domain": test202212
+      "UserPoolId": !Ref Test202212CognitoUserPool
+  Test202212CognitoUserPoolAppClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref Test202212CognitoUserPool
+      ClientName: Test202212_appclient
+      AllowedOAuthFlowsUserPoolClient: true
+      CallbackURLs:
+        - http://localhost:12500/
+      LogoutURLs:
+        - http://localhost:12500/
+      SupportedIdentityProviders:
+        - COGNITO
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - email
+        - openid
