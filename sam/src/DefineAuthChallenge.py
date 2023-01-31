@@ -1,20 +1,20 @@
 def do(event, context):
     # {'version': '1',
     #  'region': 'eu-west-1',
-    #  'userPoolId': 'eu-west-1_wJ33jpIFb',
-    #  'userName': 'dc6b1bd6-4e51-4e2e-a853-61c4cf98c706',
+    #  'userPoolId': 'eu-west-1_xxxxx',
+    #  'userName': 'dc6b1bd6-4e51-4e2e-a853-xxxxxx',
     #  'callerContext':
     #   {'awsSdkVersion': 'aws-sdk-unknown-unknown',
-    #    'clientId': '2u4bjk961opbbj69rfrat7o7if'
+    #    'clientId': 'xxxxxxxxx'
     #   },
     #  'triggerSource': 'DefineAuthChallenge_Authentication',
     #  'request':
     #   {'userAttributes':
-    #     {'sub': 'dc6b1bd6-4e51-4e2e-a853-61c4cf98c706',
-    #      'cognito:email_alias': 'luc@lejoly.be',
+    #     {'sub': 'dc6b1bd6-4e51-4e2e-a853-xxxxxxx',
+    #      'cognito:email_alias': 'luc@zorglub.be',
     #      'cognito:user_status': 'CONFIRMED',
     #      'email_verified': 'true',
-    #      'email': 'luc@lejoly.be'
+    #      'email': 'luc@zorglub.be'
     #     },
     #     # When no challenge has been answered, session is empty
     #     'session': []

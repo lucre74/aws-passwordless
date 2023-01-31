@@ -6,20 +6,20 @@ def do(event, context):
     # {
     #   'version': '1',
     #   'region': 'eu-west-1',
-    #   'userPoolId': 'eu-west-1_k0qrUCrpz',
-    #   'userName': 'cb387499-8e10-4f1c-8c8f-062090d0bc75',
+    #   'userPoolId': 'eu-west-1_xxxxxx',
+    #   'userName': 'cb387499-8e10-4f1c-8c8f-xxxxxxx',
     #   'callerContext': {
     #     'awsSdkVersion': 'aws-sdk-unknown-unknown',
-    #     'clientId': '23asg5c3oraje832ir678gtbnu'
+    #     'clientId': 'xxxxxx'
     #   },
     #   'triggerSource': 'CreateAuthChallenge_Authentication',
     #   'request': {
     #     'userAttributes': {
-    #       'sub': 'cb387499-8e10-4f1c-8c8f-062090d0bc75',
-    #       'cognito:email_alias': 'luc@lejoly.be',
+    #       'sub': 'cb387499-8e10-4f1c-8c8f-xxxxxx',
+    #       'cognito:email_alias': 'luc@zorglub.be',
     #       'cognito:user_status': 'CONFIRMED',
     #       'email_verified': 'true',
-    #       'email': 'luc@lejoly.be'
+    #       'email': 'luc@zorglub.be'
     #     },
     #     'challengeName': 'CUSTOM_CHALLENGE',
     #     'session': []
