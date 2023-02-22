@@ -37,6 +37,11 @@ Resources:
               Action:
                 - ses:SendEmail
               Resource: "*"
+            - Effect: Allow
+              Action:
+                - ssm:GetParameter
+                - ssm:GetParameters
+              Resource: "*"
   Test202212VerifyAuthChallengeFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -45,13 +50,6 @@ Resources:
       Runtime: python3.7
       Architectures:
         - x86_64
-      Policies:
-        - Version: "2012-10-17"
-          Statement:
-            - Effect: Allow
-              Action:
-                - ses:SendEmail
-              Resource: "*"
   Test202212PreSignupFunctionInvocationPermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -85,6 +83,11 @@ Resources:
     Properties:
       UsernameAttributes:
         - email
+      Schema:
+        - Name: locale
+          AttributeDataType: String
+          Mutable: true
+          Required: false
       UsernameConfiguration:
         CaseSensitive: false
       LambdaConfig:
@@ -114,3 +117,87 @@ Resources:
       AllowedOAuthScopes:
         - email
         - openid
+  Test202212ParameterEmailFromAddress:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'From email address used to send the challenge'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.mailFromAddress'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: 'sender@example.com'
+  Test202212ParameterEmailTitleEn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'English version of the challenge mail title'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.en.mailTitle'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: 'Your confirmation code is $code'
+  Test202212ParameterEmailBodyEn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'English text version of the challenge mail body'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.en.mailBody'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: "Your confirmation code is $code. \n Copy it in the authentication interface to confirm your email address."
+  Test202212ParameterEmailBodyHtmlEn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'English html version of the challenge mail body'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.en.mailBodyHtml'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: "<html><body><p>Your confirmation code is $code.</p><h3>$code</h3><p>Copy it in the authentication interface to confirm your email address.</body></html>"
+  Test202212ParameterEmailTitleFr:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'French version of the challenge mail title'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.fr.mailTitle'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: 'Votre code de confirmation est $code'
+  Test202212ParameterEmailBodyFr:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'French text version of the challenge mail body'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.fr.mailBody'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: "Votre code de confirmation est $code. \n Recopiez-le dans l'interface d'authentification pour confirmer votre adresse e-mail."
+  Test202212ParameterEmailBodyHtmlFr:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Description: 'French html version of the challenge mail body'
+      Name: !Join
+        - ''
+        - - 'be.tetram.cognito.passwordfree.'
+          - !Ref Test202212CognitoUserPool
+          - '.fr.mailBodyHtml'
+      Tier: 'Intelligent-Tiering'
+      Type: 'String'
+      Value: "<html><body><p>Votre code de confirmation est $code.</p><h3>$code</h3><p>Recopiez-le dans l'interface d'authentification pour confirmer votre adresse e-mail.</body></html>"

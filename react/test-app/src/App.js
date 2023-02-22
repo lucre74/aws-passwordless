@@ -11,8 +11,10 @@ Amplify.configure(
 );
 
 function App() {
+  const availableLanguages = ["en", "fr"];
   // user is initially undefined, it is defined when a challenge is sent, it is xxx when authenticated...
   const [email, setEmail] = useState("");
+  const [language, setLanguage] = useState("en");
   const [challenge, setChallenge] = useState("");
   const [tryNumber, setTryNumber] = useState(0);
   const [disableButton, setDisableButton] = useState(false);
@@ -39,13 +41,25 @@ function App() {
     <div className="App">
       <p>{message}</p>
       {authenticated?"":
-        <p>Email address:
-          {userExists?email:
-            <input type="text"
-                   value={email}
-                   onChange={(e) => setEmail(e.target.value)}/>
-          }
-        </p>
+        userExists?
+          <React.Fragment>
+            <p>Email address: {email}</p>
+            <p>Preferred language: {language}</p>
+          </React.Fragment>:
+          <React.Fragment>
+            <p>Email address:
+              <input type="text"
+                     value={email}
+                     onChange={(e) => setEmail(e.target.value)}/>
+            </p>
+            <p>Preferred language:
+              <select type="select"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}>
+                {availableLanguages.map((lang)=><option key={lang} value={lang}>{lang}</option>)}
+              </select>
+            </p>
+          </React.Fragment>
       }
       {userExists && !authenticated?
         <p>Code:
@@ -78,6 +92,9 @@ function App() {
     const params = {
       username: email,
       password: getRandomString(30),
+      attributes: {
+        locale: language
+      }
     }
     Auth.signUp(params) // Signup the user (so that signin is possible)
       .then(()=> {

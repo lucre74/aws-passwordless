@@ -1,6 +1,6 @@
 import random
 import boto3
-
+from string import Template
 
 def do(event, context):
     # {
@@ -32,10 +32,12 @@ def do(event, context):
     # }
     session = event["request"]["session"]
     email = event["request"]["userAttributes"]["email"]
+    language = event["request"]["userAttributes"]["locale"]
+    poolid = event["userPoolId"]
     secretcode = str(random.randrange(100000, 999999))
     if session is None or len(session) == 0:
         # Send mail with the secretCode
-        sendmail(email, secretcode)
+        sendmail(email, secretcode, language, poolid)
     else:
         # Get the secret code from the session...
         previouschallenge = session[len(session) - 1]
@@ -55,32 +57,66 @@ def decode(string):
     return string[5:]
 
 
-def sendmail(emailaddress, secret):
+def sendmail(emailaddress, secret, language, poolid):
     ses = boto3.client("ses")
+    ssm = boto3.client("ssm")
+    fromAddress = getParameter(ssm, f"be.tetram.cognito.passwordfree.{poolid}.mailFromAddress")
+    title = getTitle(ssm, poolid, language)
+    body = getBody(ssm, poolid, language)
+    bodyhtml = getBodyHtml(ssm, poolid, language)
+
     ses.send_email(
-        Source="nadheo@tetram.be",
+        Source=fromAddress,
         Destination={
             "ToAddresses": [emailaddress]
         },
         Message={
             "Subject": {
-                "Data": "Votre code d'authentification",
+                "Data": Template(title).substitute(code=secret),
                 "Charset": "UTF-8"
             },
             "Body": {
                 "Html": {
                     "Charset": "UTF-8",
-                    "Data": """<html><body><p>Votre code d'authentification:</p>
-                           <h3>{secret}</h3>
-                           <p>Recopiez-le dans l'interface d'authentification pour vous confirmer votre 
-                           adresse e-mail.</body></html>"""
-                    .format(secret=secret)
+                    "Data": Template(bodyhtml).substitute(code=secret)
                 },
                 "Text": {
                     "Charset": "UTF-8",
-                    "Data": """Votre code d'authentification est {secret}. 
-                         Recopiez-le dans l'interface d'authentification pour confirmer votre adresse e-mail."""
-                    .format(secret=secret)
+                    "Data": Template(body).substitute(code=secret)
                 }
             }
         })
+
+
+def getLanguageDependentString(ssm, template, poolid, language, default):
+    res = getParameter(ssm, Template(template).substitute(poolid=poolid, language=language))
+    if (res is None):
+        res = getParameter(ssm, Template(template).substitute(poolid=poolid, language="en"))
+    if (res is None):
+        res = default
+    return res
+
+
+def getTitle(ssm, poolid, language):
+    return getLanguageDependentString(ssm, "be.tetram.cognito.passwordfree.$poolid.$language.mailTitle", poolid,
+                                      language, "Your confirmation code")
+
+
+def getBody(ssm, poolid, language):
+    return getLanguageDependentString(ssm, "be.tetram.cognito.passwordfree.$poolid.$language.mailBody", poolid,
+                                      language, "Your confirmation code is $code.")
+
+
+def getBodyHtml(ssm, poolid, language):
+    return getLanguageDependentString(ssm, "be.tetram.cognito.passwordfree.$poolid.$language.mailBodyHtml", poolid,
+                                      language,
+                                      "<html><body><p>Your confirmation code:</p><h3>$code</h3></body></html>")
+
+
+def getParameter(ssm, key):
+    try:
+        response = ssm.get_parameter(Name=key)
+        return response["Parameter"]["Value"];
+    except Exception as e:
+        print(e)
+        return None
